@@ -1,507 +1,802 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-/* ── Typing animation hook ── */
-function useTypingEffect(words, speed = 80, pause = 1800) {
+const navLinks = [
+  ['Features', 'features'],
+  ['How It Works', 'how-it-works'],
+  ['Pricing', 'pricing'],
+  ['Testimonials', 'testimonials'],
+]
+
+const featureData = [
+  {
+    icon: '🤖',
+    title: 'AI-Powered Automation',
+    desc: 'Describe your workflow in plain English and let NexaFlow build the triggers, actions, and conditions for you.',
+  },
+  {
+    icon: '⚡',
+    title: 'Lightning Fast',
+    desc: 'Run millions of events with ultra-low latency so every workflow feels instant and dependable.',
+  },
+  {
+    icon: '🔗',
+    title: '500+ Integrations',
+    desc: 'Connect Slack, Notion, GitHub, Stripe, Salesforce, and the tools your team already relies on.',
+  },
+  {
+    icon: '🛡️',
+    title: 'Enterprise Security',
+    desc: 'Protect every workflow with encryption, audit trails, granular permissions, and compliance-ready controls.',
+  },
+  {
+    icon: '📊',
+    title: 'Advanced Analytics',
+    desc: 'Track uptime, savings, workflow performance, and team impact from a single command center.',
+  },
+  {
+    icon: '🌍',
+    title: 'Global Edge Network',
+    desc: 'Deploy close to your users worldwide and keep automations running fast at any scale.',
+  },
+]
+
+const steps = [
+  {
+    num: '01',
+    icon: '🔌',
+    title: 'Connect Your Tools',
+    desc: 'Choose the apps you already use and authenticate in seconds with a polished guided setup.',
+  },
+  {
+    num: '02',
+    icon: '🧠',
+    title: 'Define Your Logic',
+    desc: 'Use the drag-and-drop builder or simply tell the AI what outcome you want to automate.',
+  },
+  {
+    num: '03',
+    icon: '🚀',
+    title: 'Launch and Scale',
+    desc: 'Turn the workflow on, monitor the impact, and scale from a tiny team to enterprise volume.',
+  },
+]
+
+const statsData = [
+  { value: 12000, suffix: '+', label: 'Teams using NexaFlow' },
+  { value: 99.9, suffix: '%', label: 'Uptime SLA' },
+  { value: 500, suffix: '+', label: 'App integrations' },
+  { value: 10, suffix: 'x', label: 'Average productivity boost' },
+]
+
+const plans = [
+  {
+    name: 'Starter',
+    price: 0,
+    period: '/mo',
+    tag: '',
+    desc: 'Perfect for individuals and small projects getting started with automation.',
+    features: ['5 active workflows', '1,000 tasks per month', '50+ integrations', 'Email support', 'Basic analytics'],
+    cta: 'Get Started Free',
+    featured: false,
+  },
+  {
+    name: 'Pro',
+    price: 29,
+    period: '/mo',
+    tag: 'Most Popular',
+    desc: 'Built for fast-growing teams that want more power, collaboration, and visibility.',
+    features: ['Unlimited workflows', '100,000 tasks per month', '500+ integrations', 'Priority support', 'Advanced analytics', 'Team collaboration', 'Custom domains'],
+    cta: 'Start Pro Trial',
+    featured: true,
+  },
+  {
+    name: 'Enterprise',
+    price: 99,
+    period: '/mo',
+    tag: '',
+    desc: 'For large-scale operations with security, compliance, and infrastructure guarantees.',
+    features: ['Everything in Pro', 'Unlimited tasks', 'Dedicated infrastructure', '24/7 support', 'SLA guarantee', 'SSO and SAML', 'Custom contracts'],
+    cta: 'Contact Sales',
+    featured: false,
+  },
+]
+
+const testimonials = [
+  {
+    name: 'Sarah Chen',
+    role: 'CTO @ Luminary AI',
+    avatar: '👩‍💻',
+    text: 'NexaFlow cut our engineering overhead by 60%. We automated our notification and reporting pipeline in a single afternoon.',
+  },
+  {
+    name: 'Marcus Webb',
+    role: 'Founder @ Rocketship',
+    avatar: '👨‍🚀',
+    text: 'The AI workflow builder feels magical. I described the process in plain English and the system mapped the whole automation for me.',
+  },
+  {
+    name: 'Priya Patel',
+    role: 'Head of Ops @ ScaleUp',
+    avatar: '👩‍🎨',
+    text: 'We tried multiple automation products. NexaFlow is the first one that kept up with our growth without becoming a maintenance burden.',
+  },
+  {
+    name: 'James O\'Connor',
+    role: 'VP Engineering @ DataStream',
+    avatar: '👨‍💼',
+    text: 'We went from zero workflows to 200+ in a week. The ROI showed up almost immediately in time saved and incidents prevented.',
+  },
+]
+
+function useTypingEffect(words, speed = 90, pause = 1700) {
   const [text, setText] = useState('')
-  const [wordIdx, setWordIdx] = useState(0)
-  const [charIdx, setCharIdx] = useState(0)
+  const [wordIndex, setWordIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(0)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    const current = words[wordIdx]
+    const current = words[wordIndex]
     const timeout = setTimeout(() => {
       if (!deleting) {
-        setText(current.slice(0, charIdx + 1))
-        if (charIdx + 1 === current.length) {
+        const nextText = current.slice(0, charIndex + 1)
+        setText(nextText)
+        if (nextText.length === current.length) {
           setTimeout(() => setDeleting(true), pause)
         } else {
-          setCharIdx(c => c + 1)
+          setCharIndex((value) => value + 1)
         }
       } else {
-        setText(current.slice(0, charIdx - 1))
-        if (charIdx - 1 === 0) {
+        const nextText = current.slice(0, Math.max(charIndex - 1, 0))
+        setText(nextText)
+        if (charIndex <= 1) {
           setDeleting(false)
-          setWordIdx(w => (w + 1) % words.length)
-          setCharIdx(0)
+          setWordIndex((value) => (value + 1) % words.length)
+          setCharIndex(0)
         } else {
-          setCharIdx(c => c - 1)
+          setCharIndex((value) => value - 1)
         }
       }
     }, deleting ? speed / 2 : speed)
+
     return () => clearTimeout(timeout)
-  }, [charIdx, deleting, wordIdx, words, speed, pause])
+  }, [charIndex, deleting, pause, speed, wordIndex, words])
 
   return text
 }
 
-/* ── Scroll-reveal hook ── */
-function useScrollReveal() {
+function useInView(options = { threshold: 0.15 }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
-      { threshold: 0.15 }
-    )
-    if (ref.current) observer.observe(ref.current)
+    const node = ref.current
+    if (!node) return undefined
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true)
+        observer.disconnect()
+      }
+    }, options)
+
+    observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [options])
+
   return [ref, visible]
 }
 
-/* ── Animated counter hook ── */
-function useCounter(target, duration = 2000, start = false) {
+function useCountUp(target, start, duration = 1800) {
   const [count, setCount] = useState(0)
+
   useEffect(() => {
-    if (!start) return
-    let startTime = null
+    if (!start) return undefined
+
+    let frameId = 0
+    let startTime = 0
+
     const step = (timestamp) => {
       if (!startTime) startTime = timestamp
       const progress = Math.min((timestamp - startTime) / duration, 1)
-      setCount(Math.floor(progress * target))
-      if (progress < 1) requestAnimationFrame(step)
+      setCount(target * progress)
+      if (progress < 1) frameId = window.requestAnimationFrame(step)
     }
-    requestAnimationFrame(step)
-  }, [target, duration, start])
+
+    frameId = window.requestAnimationFrame(step)
+    return () => window.cancelAnimationFrame(frameId)
+  }, [duration, start, target])
+
   return count
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTS
-════════════════════════════════════════════ */
+function Reveal({ children, className = '', delay = 0 }) {
+  const [ref, visible] = useInView()
 
-/* ── Navbar ── */
+  return (
+    <div
+      ref={ref}
+      className={`${className} transition duration-700 ease-out ${
+        visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function SectionHeading({ tag, title, emphasis, description }) {
+  return (
+    <div className="mx-auto max-w-3xl text-center">
+      <span className="section-tag">{tag}</span>
+      <h2 className="mt-6 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+        {title} {emphasis ? <span className="gradient-text">{emphasis}</span> : null}
+      </h2>
+      {description ? <p className="mt-5 text-base leading-8 text-slate-300 sm:text-lg">{description}</p> : null}
+    </div>
+  )
+}
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => setScrolled(window.scrollY > 32)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const links = ['Features', 'How It Works', 'Pricing', 'Testimonials']
-
   return (
-    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="nav-inner">
-        <a href="#" className="nav-logo">
-          <span className="logo-icon">⚡</span>
+    <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6 lg:px-8">
+      <nav
+        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full border px-5 py-3 transition-all duration-300 sm:px-6 ${
+          scrolled
+            ? 'border-white/10 bg-slate-950/85 shadow-2xl shadow-slate-950/50 backdrop-blur-xl'
+            : 'border-white/5 bg-white/5 backdrop-blur-md'
+        }`}
+      >
+        <a href="#hero" className="flex items-center gap-3 text-lg font-extrabold tracking-tight text-white">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 text-lg shadow-lg shadow-violet-500/20">
+            ⚡
+          </span>
           <span>NexaFlow</span>
         </a>
-        <ul className={`nav-links ${menuOpen ? 'open' : ''}`}>
-          {links.map(l => (
-            <li key={l}>
-              <a href={`#${l.toLowerCase().replace(/\s+/g, '-')}`}
-                 onClick={() => setMenuOpen(false)}>{l}</a>
-            </li>
+
+        <div className="hidden items-center gap-7 lg:flex">
+          {navLinks.map(([label, id]) => (
+            <a key={id} href={`#${id}`} className="text-sm font-medium text-slate-300 transition hover:text-white">
+              {label}
+            </a>
           ))}
-          <li><a href="#pricing" className="nav-cta" onClick={() => setMenuOpen(false)}>Get Started Free</a></li>
-        </ul>
-        <button className="hamburger" onClick={() => setMenuOpen(m => !m)} aria-label="Toggle menu">
-          <span className={menuOpen ? 'bar bar1 open' : 'bar bar1'}></span>
-          <span className={menuOpen ? 'bar bar2 open' : 'bar bar2'}></span>
-          <span className={menuOpen ? 'bar bar3 open' : 'bar bar3'}></span>
+          <a href="#pricing" className="btn-primary px-5 py-3 text-sm">
+            Get Started Free
+          </a>
+        </div>
+
+        <button
+          type="button"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white lg:hidden"
+          aria-label="Toggle navigation menu"
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span className="text-lg">{menuOpen ? '✕' : '☰'}</span>
         </button>
-      </div>
-    </nav>
+      </nav>
+
+      {menuOpen ? (
+        <div className="mx-auto mt-3 max-w-7xl rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/50 backdrop-blur-xl lg:hidden">
+          <div className="flex flex-col gap-2">
+            {navLinks.map(([label, id]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5"
+                onClick={() => setMenuOpen(false)}
+              >
+                {label}
+              </a>
+            ))}
+            <a href="#pricing" className="btn-primary mt-2 justify-center text-sm" onClick={() => setMenuOpen(false)}>
+              Get Started Free
+            </a>
+          </div>
+        </div>
+      ) : null}
+    </header>
   )
 }
 
-/* ── Hero ── */
 function Hero() {
-  const typedText = useTypingEffect([
-    'Automate Everything.',
-    'Ship 10x Faster.',
-    'Work Smarter.',
-    'Scale Infinitely.',
-  ])
+  const typedText = useTypingEffect(['Automate Everything.', 'Ship 10x Faster.', 'Work Smarter.', 'Scale Infinitely.'])
 
   return (
-    <section className="hero" id="hero">
-      {/* animated orbs */}
-      <div className="orb orb1" />
-      <div className="orb orb2" />
-      <div className="orb orb3" />
-
-      <div className="hero-content">
-        <div className="badge-pill">
-          <span className="badge-dot" />
-          Now with GPT-4o Integration — <strong>Try it free</strong>
-        </div>
-
-        <h1 className="hero-title">
-          AI Built to<br />
-          <span className="gradient-text typed-wrap">
-            {typedText}<span className="cursor">|</span>
-          </span>
-        </h1>
-
-        <p className="hero-sub">
-          NexaFlow connects your tools, automates your repetitive tasks, and
-          supercharges your team's productivity — all powered by cutting-edge AI.
-        </p>
-
-        <div className="hero-actions">
-          <a href="#pricing" className="btn btn-primary">
-            Start for Free
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-          <a href="#how-it-works" className="btn btn-ghost">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            Watch Demo
-          </a>
-        </div>
-
-        <div className="hero-social-proof">
-          <div className="avatars">
-            {['👩‍💻','👨‍🚀','👩‍🎨','👨‍💼','👩‍🔬'].map((e,i) => (
-              <span key={i} className="avatar" style={{zIndex: 5-i}}>{e}</span>
-            ))}
-          </div>
-          <p><strong>12,000+</strong> teams already growing with NexaFlow</p>
-        </div>
+    <section id="hero" className="relative overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8 lg:pb-28 lg:pt-36">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-[5%] top-20 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" />
+        <div className="absolute right-[6%] top-32 h-72 w-72 rounded-full bg-cyan-400/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_35%),linear-gradient(to_bottom,rgba(2,6,23,0.25),rgba(2,6,23,0.9))]" />
       </div>
 
-      {/* Dashboard mockup */}
-      <div className="hero-visual">
-        <div className="dashboard-card glass">
-          <div className="dash-header">
-            <span className="dot red"/><span className="dot yellow"/><span className="dot green"/>
-            <span className="dash-title">NexaFlow Dashboard</span>
+      <div className="section-shell grid items-center gap-16 lg:grid-cols-[1.15fr_0.85fr]">
+        <Reveal className="relative">
+          <div className="inline-flex items-center gap-3 rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-sm font-semibold text-violet-200 shadow-lg shadow-violet-500/10">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_16px_rgba(74,222,128,0.8)]" />
+            Now with GPT-4o integration · Try it free
           </div>
-          <div className="dash-stats">
-            <div className="stat-box">
-              <span className="stat-val gradient-text">↑ 94%</span>
-              <span className="stat-label">Efficiency</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-val gradient-text">10x</span>
-              <span className="stat-label">Faster Output</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-val gradient-text">∞</span>
-              <span className="stat-label">Automations</span>
-            </div>
+
+          <h1 className="mt-8 max-w-3xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+            AI built to
+            <span className="mt-3 block min-h-[1.2em] gradient-text">
+              {typedText}
+              <span className="ml-1 inline-block animate-pulse text-cyan-300">|</span>
+            </span>
+          </h1>
+
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl">
+            NexaFlow connects your apps, removes repetitive work, and turns manual busywork into reliable AI-powered systems your team can trust.
+          </p>
+
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <a href="#pricing" className="btn-primary justify-center sm:justify-start">
+              Start for Free
+              <span aria-hidden="true">→</span>
+            </a>
+            <a href="#how-it-works" className="btn-secondary justify-center sm:justify-start">
+              ▶ Watch Demo
+            </a>
           </div>
-          <div className="dash-bars">
-            {[85, 62, 91, 74, 88, 55, 96].map((h, i) => (
-              <div key={i} className="bar-wrap">
-                <div className="bar-fill" style={{'--h': h + '%', '--delay': i * 0.1 + 's'}} />
+
+          <div className="mt-10 flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex -space-x-3">
+              {['👩‍💻', '👨‍🚀', '👩‍🔬', '👨‍💼', '👩‍🎨'].map((avatar) => (
+                <span
+                  key={avatar}
+                  className="grid h-12 w-12 place-items-center rounded-full border border-slate-900/70 bg-gradient-to-br from-slate-200 to-slate-100 text-lg shadow-lg"
+                >
+                  {avatar}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm text-slate-300 sm:text-base">
+              <span className="font-bold text-white">12,000+</span> teams already growing with NexaFlow
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120} className="relative">
+          <div className="glass-card relative overflow-hidden p-6 sm:p-8">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(129,140,248,0.25),transparent_30%)]" />
+            <div className="relative">
+              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-rose-400" />
+                  <span className="h-3 w-3 rounded-full bg-amber-400" />
+                  <span className="h-3 w-3 rounded-full bg-emerald-400" />
+                </div>
+                <span className="text-sm font-medium text-slate-300">NexaFlow Dashboard</span>
               </div>
-            ))}
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {[
+                  ['↑ 94%', 'Efficiency'],
+                  ['10x', 'Faster output'],
+                  ['∞', 'Automations'],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="gradient-text text-2xl font-black">{value}</div>
+                    <div className="mt-1 text-sm text-slate-400">{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+                <div className="flex h-40 items-end gap-3">
+                  {[85, 62, 91, 74, 88, 55, 96].map((height, index) => (
+                    <div key={height + index} className="flex-1 rounded-full bg-slate-900/80 p-1">
+                      <div
+                        className="w-full rounded-full bg-gradient-to-t from-cyan-400 via-indigo-400 to-violet-500 shadow-[0_0_18px_rgba(99,102,241,0.45)] transition-all duration-700"
+                        style={{ height: `${height}%` }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-300">
+                {['Collect', 'Analyze', 'Automate', 'Deploy'].map((node, index) => (
+                  <div key={node} className="flex items-center gap-3">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">{node}</span>
+                    {index < 3 ? <span className="text-cyan-300">→</span> : null}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="dash-flow">
-            {['Collect', '→', 'Analyze', '→', 'Automate', '→', 'Deploy'].map((s,i) => (
-              <span key={i} className={s === '→' ? 'arrow' : 'flow-node'}>{s}</span>
-            ))}
-          </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
 }
 
-/* ── Features ── */
-const featureData = [
-  { icon: '🤖', title: 'AI-Powered Automation', desc: 'Let our AI analyze your workflows and automatically create triggers, actions, and conditions — no coding needed.' },
-  { icon: '⚡', title: 'Lightning Fast', desc: 'Process millions of events per second with sub-10ms latency. Your workflows execute in real-time, every time.' },
-  { icon: '🔗', title: '500+ Integrations', desc: 'Connect Slack, Notion, GitHub, Stripe, Salesforce and 495 more apps with one-click integrations.' },
-  { icon: '🛡️', title: 'Enterprise Security', desc: 'SOC2 Type II, GDPR, and HIPAA compliant. End-to-end encryption with granular permission controls.' },
-  { icon: '📊', title: 'Advanced Analytics', desc: 'Real-time dashboards and reports that give you complete visibility into every automation and its impact.' },
-  { icon: '🌐', title: 'Global Edge Network', desc: 'Deploy workflows to 30+ edge locations worldwide. Your automations run close to your users — always.' },
-]
-
 function FeatureCard({ icon, title, desc, index }) {
-  const [ref, visible] = useScrollReveal()
   return (
-    <div ref={ref} className={`feature-card glass ${visible ? 'reveal' : ''}`}
-         style={{ '--delay': index * 0.1 + 's' }}>
-      <div className="feature-icon">{icon}</div>
-      <h3>{title}</h3>
-      <p>{desc}</p>
-    </div>
+    <Reveal delay={index * 90} className="h-full">
+      <article className="glass-card h-full p-6 sm:p-7">
+        <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-cyan-400/20 text-2xl ring-1 ring-white/10">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-white">{title}</h3>
+        <p className="mt-3 text-sm leading-7 text-slate-300 sm:text-base">{desc}</p>
+      </article>
+    </Reveal>
   )
 }
 
 function Features() {
-  const [ref, visible] = useScrollReveal()
   return (
-    <section className="features section" id="features">
-      <div ref={ref} className={`section-header ${visible ? 'reveal' : ''}`}>
-        <span className="section-tag">Features</span>
-        <h2>Everything you need to<br /><span className="gradient-text">automate at scale</span></h2>
-        <p>Powerful tools built for modern teams who demand speed, reliability, and intelligence.</p>
-      </div>
-      <div className="features-grid">
-        {featureData.map((f, i) => <FeatureCard key={i} {...f} index={i} />)}
+    <section id="features" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="section-shell">
+        <Reveal>
+          <SectionHeading
+            tag="Features"
+            title="Everything you need to"
+            emphasis="automate at scale"
+            description="Powerful tools built for modern teams that demand speed, reliability, and intelligence in one polished platform."
+          />
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {featureData.map((feature, index) => (
+            <FeatureCard key={feature.title} {...feature} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-/* ── How It Works ── */
-const steps = [
-  { num: '01', icon: '🔌', title: 'Connect Your Tools', desc: 'Link your existing apps in seconds using our one-click integration library. No technical setup needed.' },
-  { num: '02', icon: '🧠', title: 'Define Your Logic', desc: 'Use our visual drag-and-drop builder or describe your workflow in plain English — our AI handles the rest.' },
-  { num: '03', icon: '🚀', title: 'Launch & Scale', desc: 'Activate your automation and watch it run. Scale from 10 to 10 million events without touching a line of code.' },
-]
+function StepCard({ step, index, showConnector }) {
+  return (
+    <Reveal delay={index * 120} className="relative h-full">
+      <article className="glass-card relative h-full p-6 sm:p-8">
+        <span className="text-sm font-bold uppercase tracking-[0.3em] text-violet-300">{step.num}</span>
+        <div className="mt-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl ring-1 ring-white/10">
+          {step.icon}
+        </div>
+        <h3 className="mt-5 text-2xl font-bold text-white">{step.title}</h3>
+        <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">{step.desc}</p>
+        {showConnector ? (
+          <div className="pointer-events-none absolute -right-8 top-1/2 hidden h-px w-16 -translate-y-1/2 bg-gradient-to-r from-violet-400/70 to-cyan-300/0 xl:block" />
+        ) : null}
+      </article>
+    </Reveal>
+  )
+}
 
 function HowItWorks() {
-  const [ref, visible] = useScrollReveal()
   return (
-    <section className="how-it-works section" id="how-it-works">
-      <div ref={ref} className={`section-header ${visible ? 'reveal' : ''}`}>
-        <span className="section-tag">How It Works</span>
-        <h2>Up and running in<br /><span className="gradient-text">under 5 minutes</span></h2>
-      </div>
-      <div className="steps-grid">
-        {steps.map((s, i) => {
-          const [sRef, sVis] = useScrollReveal()
-          return (
-            <div ref={sRef} key={i}
-                 className={`step-card glass ${sVis ? 'reveal' : ''}`}
-                 style={{ '--delay': i * 0.15 + 's' }}>
-              <span className="step-num">{s.num}</span>
-              <div className="step-icon">{s.icon}</div>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-              {i < steps.length - 1 && <div className="step-connector" />}
-            </div>
-          )
-        })}
+    <section id="how-it-works" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="section-shell">
+        <Reveal>
+          <SectionHeading
+            tag="How It Works"
+            title="Up and running in"
+            emphasis="under 5 minutes"
+          />
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 xl:grid-cols-3">
+          {steps.map((step, index) => (
+            <StepCard key={step.num} step={step} index={index} showConnector={index < steps.length - 1} />
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-/* ── Stats ── */
-const statsData = [
-  { value: 12000, suffix: '+', label: 'Teams Using NexaFlow' },
-  { value: 99, suffix: '.9%', label: 'Uptime SLA' },
-  { value: 500, suffix: '+', label: 'App Integrations' },
-  { value: 10, suffix: 'x', label: 'Average Productivity Boost' },
-]
+function StatCard({ value, suffix, label, delay }) {
+  const [ref, visible] = useInView({ threshold: 0.3 })
+  const count = useCountUp(value, visible, 1800)
+  const display = Number.isInteger(value) ? Math.round(count).toLocaleString() : count.toFixed(1)
+
+  return (
+    <div
+      ref={ref}
+      className={`rounded-3xl border border-white/10 bg-white/5 px-6 py-8 text-center backdrop-blur-xl transition duration-700 ${
+        visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <div className="gradient-text text-4xl font-black sm:text-5xl">{visible ? display : '0'}{suffix}</div>
+      <p className="mt-3 text-sm font-medium text-slate-300 sm:text-base">{label}</p>
+    </div>
+  )
+}
 
 function StatsSection() {
-  const [ref, visible] = useScrollReveal()
   return (
-    <section className="stats-section" ref={ref}>
-      <div className="stats-grid">
-        {statsData.map((s, i) => {
-          const count = useCounter(s.value, 2200, visible)
-          return (
-            <div key={i} className={`stat-item ${visible ? 'reveal' : ''}`}
-                 style={{ '--delay': i * 0.1 + 's' }}>
-              <span className="stat-big gradient-text">
-                {visible ? count.toLocaleString() : '0'}{s.suffix}
-              </span>
-              <span className="stat-desc">{s.label}</span>
-            </div>
-          )
-        })}
+    <section className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="section-shell rounded-[2rem] border border-white/10 bg-white/5 px-6 py-10 backdrop-blur-xl sm:px-10">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {statsData.map((stat, index) => (
+            <StatCard key={stat.label} {...stat} delay={index * 90} />
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-/* ── Pricing ── */
-const plans = [
-  {
-    name: 'Starter', price: 0, period: '/mo', tag: null,
-    desc: 'Perfect for individuals and small projects.',
-    features: ['5 active workflows', '1,000 tasks/mo', '50+ integrations', 'Email support', 'Basic analytics'],
-    cta: 'Get Started Free', style: 'ghost',
-  },
-  {
-    name: 'Pro', price: 29, period: '/mo', tag: 'Most Popular',
-    desc: 'For growing teams that need more power.',
-    features: ['Unlimited workflows', '100,000 tasks/mo', '500+ integrations', 'Priority support', 'Advanced analytics', 'Team collaboration', 'Custom domains'],
-    cta: 'Start Pro Trial', style: 'primary',
-  },
-  {
-    name: 'Enterprise', price: 99, period: '/mo', tag: null,
-    desc: 'For large-scale operations with custom needs.',
-    features: ['Everything in Pro', 'Unlimited tasks', 'Dedicated infrastructure', '24/7 phone support', 'SLA guarantee', 'SSO & SAML', 'Custom contracts'],
-    cta: 'Contact Sales', style: 'ghost',
-  },
-]
+function PricingCard({ plan, annual, index }) {
+  const price = annual && plan.price > 0 ? Math.round(plan.price * 0.8) : plan.price
+
+  return (
+    <Reveal delay={index * 110} className="h-full">
+      <article
+        className={`glass-card relative flex h-full flex-col p-6 sm:p-8 ${
+          plan.featured ? 'ring-2 ring-violet-400/70 shadow-[0_0_40px_rgba(139,92,246,0.24)]' : ''
+        }`}
+      >
+        {plan.tag ? (
+          <span className="absolute right-6 top-6 rounded-full bg-gradient-to-r from-violet-500 to-cyan-400 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-950">
+            {plan.tag}
+          </span>
+        ) : null}
+        <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+        <div className="mt-6 flex items-end gap-1">
+          <span className="text-xl font-semibold text-slate-400">$</span>
+          <span className="gradient-text text-5xl font-black">{price}</span>
+          <span className="pb-1 text-sm text-slate-400">{plan.period}</span>
+        </div>
+        <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">{plan.desc}</p>
+        <ul className="mt-8 space-y-3 text-sm text-slate-200 sm:text-base">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-3">
+              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-xs text-emerald-300">
+                ✓
+              </span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+        <a href="#" className={`${plan.featured ? 'btn-primary' : 'btn-secondary'} mt-8 justify-center`}>
+          {plan.cta}
+        </a>
+      </article>
+    </Reveal>
+  )
+}
 
 function Pricing() {
   const [annual, setAnnual] = useState(false)
-  const [ref, visible] = useScrollReveal()
+
   return (
-    <section className="pricing section" id="pricing">
-      <div ref={ref} className={`section-header ${visible ? 'reveal' : ''}`}>
-        <span className="section-tag">Pricing</span>
-        <h2>Simple, transparent<br /><span className="gradient-text">pricing for everyone</span></h2>
-        <div className="billing-toggle">
-          <span className={!annual ? 'active' : ''}>Monthly</span>
-          <button className={`toggle-btn ${annual ? 'on' : ''}`} onClick={() => setAnnual(a => !a)} aria-label="Toggle billing period">
-            <span className="toggle-thumb" />
-          </button>
-          <span className={annual ? 'active' : ''}>Annual <em className="save-badge">Save 20%</em></span>
+    <section id="pricing" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="section-shell">
+        <Reveal>
+          <SectionHeading
+            tag="Pricing"
+            title="Simple, transparent"
+            emphasis="pricing for everyone"
+            description="Choose the plan that fits your team today and scale up whenever you are ready."
+          />
+        </Reveal>
+
+        <Reveal delay={100} className="mt-8 flex justify-center">
+          <div className="inline-flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-slate-300 backdrop-blur-xl">
+            <span className={!annual ? 'font-semibold text-white' : ''}>Monthly</span>
+            <button
+              type="button"
+              onClick={() => setAnnual((value) => !value)}
+              className={`relative h-8 w-16 rounded-full transition ${annual ? 'bg-violet-500' : 'bg-slate-700'}`}
+              aria-label="Toggle billing period"
+            >
+              <span
+                className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition ${annual ? 'left-9' : 'left-1'}`}
+              />
+            </button>
+            <span className={annual ? 'font-semibold text-white' : ''}>
+              Annual <em className="rounded-full bg-emerald-400/15 px-2 py-1 text-xs not-italic text-emerald-300">Save 20%</em>
+            </span>
+          </div>
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 xl:grid-cols-3">
+          {plans.map((plan, index) => (
+            <PricingCard key={plan.name} plan={plan} annual={annual} index={index} />
+          ))}
         </div>
-      </div>
-      <div className="pricing-grid">
-        {plans.map((plan, i) => {
-          const [pRef, pVis] = useScrollReveal()
-          const price = annual && plan.price > 0 ? Math.round(plan.price * 0.8) : plan.price
-          return (
-            <div ref={pRef} key={i}
-                 className={`pricing-card glass ${plan.style === 'primary' ? 'featured' : ''} ${pVis ? 'reveal' : ''}`}
-                 style={{ '--delay': i * 0.12 + 's' }}>
-              {plan.tag && <span className="plan-tag">{plan.tag}</span>}
-              <h3 className="plan-name">{plan.name}</h3>
-              <div className="plan-price">
-                <span className="price-symbol">$</span>
-                <span className="price-val gradient-text">{price}</span>
-                <span className="price-period">{plan.period}</span>
-              </div>
-              <p className="plan-desc">{plan.desc}</p>
-              <ul className="plan-features">
-                {plan.features.map((f, j) => (
-                  <li key={j}><span className="check">✓</span>{f}</li>
-                ))}
-              </ul>
-              <a href="#" className={`btn btn-${plan.style} btn-full`}>{plan.cta}</a>
-            </div>
-          )
-        })}
       </div>
     </section>
   )
 }
 
-/* ── Testimonials ── */
-const testimonials = [
-  { name: 'Sarah Chen', role: 'CTO @ Luminary AI', avatar: '👩‍💻', stars: 5,
-    text: 'NexaFlow cut our engineering overhead by 60%. We automated our entire CI/CD notification pipeline in an afternoon. Absolutely incredible product.' },
-  { name: 'Marcus Webb', role: 'Founder @ Rocketship', avatar: '👨‍🚀', stars: 5,
-    text: 'The AI workflow builder is genuinely magical. I described what I wanted in plain English and it built the whole automation for me. This is the future.' },
-  { name: 'Priya Patel', role: 'Head of Ops @ ScaleUp', avatar: '👩‍🎨', stars: 5,
-    text: 'We\'ve tried every automation tool out there. NexaFlow is the only one that actually keeps up with our growth. The reliability is unmatched.' },
-  { name: 'James O\'Connor', role: 'VP Eng @ DataStream', avatar: '👨‍💼', stars: 5,
-    text: 'From zero automations to 200+ running workflows in a week. Our team saved 30+ hours every single week. The ROI is off the charts.' },
-]
+function TestimonialCard({ testimonial, active, onClick, index }) {
+  return (
+    <Reveal delay={index * 90} className="h-full">
+      <button
+        type="button"
+        onClick={onClick}
+        className={`glass-card h-full w-full p-6 text-left transition ${
+          active ? 'border-violet-400/60 bg-violet-500/10 shadow-[0_0_30px_rgba(139,92,246,0.16)]' : 'hover:-translate-y-1'
+        }`}
+      >
+        <div className="text-amber-300">★★★★★</div>
+        <p className="mt-5 text-sm leading-7 text-slate-200 sm:text-base">“{testimonial.text}”</p>
+        <div className="mt-6 flex items-center gap-4">
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-white/10 text-xl">{testimonial.avatar}</span>
+          <div>
+            <div className="font-semibold text-white">{testimonial.name}</div>
+            <div className="text-sm text-slate-400">{testimonial.role}</div>
+          </div>
+        </div>
+      </button>
+    </Reveal>
+  )
+}
 
 function Testimonials() {
   const [active, setActive] = useState(0)
-  const [ref, visible] = useScrollReveal()
 
   useEffect(() => {
-    const t = setInterval(() => setActive(a => (a + 1) % testimonials.length), 5000)
-    return () => clearInterval(t)
+    const interval = window.setInterval(() => {
+      setActive((value) => (value + 1) % testimonials.length)
+    }, 5000)
+
+    return () => window.clearInterval(interval)
   }, [])
 
   return (
-    <section className="testimonials section" id="testimonials">
-      <div ref={ref} className={`section-header ${visible ? 'reveal' : ''}`}>
-        <span className="section-tag">Testimonials</span>
-        <h2>Loved by <span className="gradient-text">12,000+ teams</span></h2>
+    <section id="testimonials" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="section-shell">
+        <Reveal>
+          <SectionHeading tag="Testimonials" title="Loved by" emphasis="12,000+ teams" />
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          {testimonials.map((testimonial, index) => (
+            <TestimonialCard
+              key={testimonial.name}
+              testimonial={testimonial}
+              active={index === active}
+              onClick={() => setActive(index)}
+              index={index}
+            />
+          ))}
+        </div>
+
+        <div className="mt-8 flex justify-center gap-3">
+          {testimonials.map((testimonial, index) => (
+            <button
+              key={testimonial.name}
+              type="button"
+              className={`h-3 rounded-full transition ${index === active ? 'w-10 bg-violet-400' : 'w-3 bg-white/20'}`}
+              aria-label={`View testimonial ${index + 1}`}
+              onClick={() => setActive(index)}
+            />
+          ))}
+        </div>
       </div>
-      <div className="testimonial-grid">
-        {testimonials.map((t, i) => (
-          <div key={i} className={`testimonial-card glass ${i === active ? 'active' : ''}`}
-               onClick={() => setActive(i)}>
-            <div className="stars">{'★'.repeat(t.stars)}</div>
-            <p className="testimonial-text">"{t.text}"</p>
-            <div className="testimonial-author">
-              <span className="author-avatar">{t.avatar}</span>
-              <div>
-                <strong>{t.name}</strong>
-                <span>{t.role}</span>
+    </section>
+  )
+}
+
+function CTABanner() {
+  return (
+    <section className="px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-32">
+      <div className="section-shell">
+        <Reveal>
+          <div className="glass-card relative overflow-hidden px-6 py-10 text-center sm:px-10 sm:py-14">
+            <div className="absolute -left-10 top-10 h-36 w-36 rounded-full bg-violet-500/20 blur-3xl" />
+            <div className="absolute -right-6 bottom-0 h-44 w-44 rounded-full bg-cyan-400/20 blur-3xl" />
+            <div className="relative">
+              <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Ready to <span className="gradient-text">transform</span> your workflow?
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                Join thousands of teams automating the future. Start free today with no credit card required.
+              </p>
+              <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                <a href="#pricing" className="btn-primary justify-center">
+                  Start for Free — It&apos;s Free
+                </a>
+                <a href="#" className="btn-secondary justify-center">
+                  Schedule a Demo
+                </a>
               </div>
+              <p className="mt-6 text-sm text-slate-400">✓ No credit card · ✓ 14-day Pro trial · ✓ Cancel anytime</p>
             </div>
           </div>
-        ))}
-      </div>
-      <div className="dot-indicators">
-        {testimonials.map((_, i) => (
-          <button key={i} className={`dot-indicator ${i === active ? 'active' : ''}`}
-                  onClick={() => setActive(i)} aria-label={`Testimonial ${i+1}`} />
-        ))}
+        </Reveal>
       </div>
     </section>
   )
 }
 
-/* ── CTA Banner ── */
-function CTABanner() {
-  const [ref, visible] = useScrollReveal()
-  return (
-    <section className="cta-banner" ref={ref}>
-      <div className={`cta-inner glass ${visible ? 'reveal' : ''}`}>
-        <div className="orb orb-cta1" />
-        <div className="orb orb-cta2" />
-        <h2>Ready to <span className="gradient-text">transform</span> your workflow?</h2>
-        <p>Join thousands of teams automating the future. Start free, no credit card required.</p>
-        <div className="cta-actions">
-          <a href="#" className="btn btn-primary">Start for Free — It's Free!</a>
-          <a href="#" className="btn btn-ghost">Schedule a Demo</a>
-        </div>
-        <p className="cta-note">✓ No credit card &nbsp;✓ 14-day Pro trial &nbsp;✓ Cancel anytime</p>
-      </div>
-    </section>
-  )
-}
-
-/* ── Footer ── */
 function Footer() {
-  const cols = {
+  const columns = {
     Product: ['Features', 'Integrations', 'Pricing', 'Changelog', 'Roadmap'],
     Company: ['About Us', 'Blog', 'Careers', 'Press Kit', 'Contact'],
     Resources: ['Documentation', 'API Reference', 'Status Page', 'Community', 'Tutorials'],
     Legal: ['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'GDPR'],
   }
+
   return (
-    <footer className="footer">
-      <div className="footer-top">
-        <div className="footer-brand">
-          <a href="#" className="nav-logo">
-            <span className="logo-icon">⚡</span><span>NexaFlow</span>
+    <footer className="border-t border-white/10 px-4 py-14 sm:px-6 lg:px-8">
+      <div className="section-shell grid gap-12 lg:grid-cols-[1.2fr_repeat(4,minmax(0,1fr))]">
+        <div>
+          <a href="#hero" className="flex items-center gap-3 text-lg font-extrabold tracking-tight text-white">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 text-lg text-slate-950">
+              ⚡
+            </span>
+            <span>NexaFlow</span>
           </a>
-          <p>AI-powered workflow automation for modern teams. Build, deploy, and scale automations without code.</p>
-          <div className="social-links">
-            {['𝕏', '💼', '🐙', '▶️'].map((s, i) => (
-              <a key={i} href="#" className="social-btn">{s}</a>
+          <p className="mt-5 max-w-sm text-sm leading-7 text-slate-400 sm:text-base">
+            AI-powered workflow automation for modern teams. Build, deploy, and scale reliable systems without code.
+          </p>
+          <div className="mt-6 flex gap-3">
+            {['𝕏', '💼', '🐙', '▶️'].map((item) => (
+              <a
+                key={item}
+                href="#"
+                className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 transition hover:border-violet-400/50 hover:text-white"
+              >
+                {item}
+              </a>
             ))}
           </div>
         </div>
-        {Object.entries(cols).map(([title, links]) => (
-          <div key={title} className="footer-col">
-            <h4>{title}</h4>
-            <ul>{links.map(l => <li key={l}><a href="#">{l}</a></li>)}</ul>
+
+        {Object.entries(columns).map(([title, items]) => (
+          <div key={title}>
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">{title}</h3>
+            <ul className="mt-5 space-y-3">
+              {items.map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-sm text-slate-300 transition hover:text-white sm:text-base">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
-      <div className="footer-bottom">
-        <p>© 2025 NexaFlow, Inc. All rights reserved.</p>
-        <p>Built with ⚡ React + Vite</p>
+
+      <div className="section-shell mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 NexaFlow, Inc. All rights reserved.</p>
+        <p>Built with React, Vite, and Tailwind CSS.</p>
       </div>
     </footer>
   )
 }
 
-/* ── Back to Top ── */
 function BackToTop() {
   const [show, setShow] = useState(false)
+
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400)
+    const onScroll = () => setShow(window.scrollY > 500)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-  return show ? (
-    <button className="back-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
+
+  if (!show) return null
+
+  return (
+    <button
+      type="button"
+      className="fixed bottom-6 right-6 z-50 grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-slate-900/90 text-lg text-white shadow-2xl shadow-slate-950/50 backdrop-blur-xl transition hover:-translate-y-1"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Back to top"
+    >
       ↑
     </button>
-  ) : null
+  )
 }
 
-/* ═══════════════════════════════════════════
-   MAIN APP
-════════════════════════════════════════════ */
 export default function App() {
   return (
     <>
